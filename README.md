@@ -11,11 +11,19 @@ TODO
 
 [![Clojars Project](https://img.shields.io/clojars/v/dataset-tools.svg)](https://clojars.org/dataset-tools)
 
-An easy to use, SQL-like library for working with [core.matrix.dataset](https://mikera.github.io/core.matrix/doc/clojure.core.matrix.dataset.html)
-datasets in Clojure. Library includes select, order, where, join, aggregate, cross-tab (pivot), as well as from/to-dataset functions which make
-moving between lazy sequences and datasets seemless.
+An easy to use library for working with [core.matrix.dataset](https://mikera.github.io/core.matrix/doc/clojure.core.matrix.dataset.html)
+datasets in Clojure. Library includes the following functions:
 
-Documentation is [here](...). 
+* select (column selection)
+* order (multi-field sorting)
+* where (filtering)
+* join (inner and left join datasets on arbitrary criteria)
+* aggregate (group by aggregates)
+* cross-tab (pivot-tables)
+* to-dataset (list of maps to dataset)
+* from-dataset (dataset to list of maps).
+
+The API documentation is [here](...). 
 
 ## Getting Started
 
