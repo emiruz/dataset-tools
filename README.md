@@ -27,7 +27,7 @@ Please report issues and contribute if you can.
 2. Either *use* or *require* the library in your code:
 
 ```clojure
-(require '[dataset-tools :as dt])
+(require '[dataset-tools.core :as dt])
 ```
 
 ## Common Tasks

@@ -25,7 +25,7 @@ datasets in Clojure. Library includes the following functions:
 2. Either *use* or *require* the library in your code:
 
 ```clojure
-(require '[dataset-tools :as dt])
+(require '[dataset-tools.core :as dt])
 ```
 
 ## Common Tasks
