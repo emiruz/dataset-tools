@@ -16,6 +16,8 @@ datasets in Clojure. Library includes the following functions:
 * to-dataset (list of maps to dataset)
 * from-dataset (dataset to list of maps).
 
+Please report issues and contribute if you can.
+
 ## Getting Started
 
 1. Add the library to your project file:
