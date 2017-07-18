@@ -12,7 +12,9 @@
   [ds]
   (md/column-names ds))
 
-(defn- select-vals[m ks]
+(defn select-vals
+  "Select the values from the map m in the order specified in ks."
+  [m ks]
   (reduce #(conj %1 (get m %2)) [] ks))
 
 (defn from-dataset
@@ -38,10 +40,9 @@
   "Returns the dataset ds only containing columns specified in cols, 
    or returns a column vector if a single column is specified in cols."
   [cols ds]
-  (let [cond (or (seq? cols) (vector? cols))
-        c (if cond cols (conj [] cols))
-        n (md/select-columns ds c)]
-    (if cond n (m/get-column n 0))))
+  (let [o (->> (from-dataset ds) (to-dataset (flatten [cols])))]
+    (if (or (seq? cols) (vector? cols))
+      o (m/get-column o 0))))
 
 (defn where
   "Returns the dataset ds filtered on predicate pred. Pred is expected
@@ -146,5 +147,19 @@
   "For each column, applies the function f. A vector is passed to f,
    and a scalar return is expected."
   [cols f ds]
-  (->> (select (flatten [cols]) ds)
-       (mapv #(f (vec %)))))
+  (let [o (select cols ds)]
+    (mapv #(f (m/get-column o %))
+          (range 0 (m/column-count o)))))
+
+(defn order-columns
+  "Sorts the dataset ds columns cols according to function f.
+   The columns in prefix and suffix are added to the beginning and end
+   of the dataset respectively. The function f should expect a column
+   vector and return a scalar. If rev is specified the order is reversed."
+  [cols f ds & {:keys [rev prefix suffix] :or {rev false prefix [] suffix []}}]
+  (let [m (zipmap (capply cols f ds) cols)
+        s (comp (if rev reverse identity) sort)
+        c (concat (flatten [prefix])
+                  (select-vals m (s (keys m)))
+                  (flatten [suffix]))]
+    (select c ds)))
