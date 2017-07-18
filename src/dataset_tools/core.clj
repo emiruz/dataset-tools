@@ -7,6 +7,14 @@
             [clojure.set :as cset]
             [clojure.core.reducers :as red]))
 
+(defn column-names
+  "Returns the column names of the dataset ds."
+  [ds]
+  (md/column-names ds))
+
+(defn- select-vals[m ks]
+  (reduce #(conj %1 (get m %2)) [] ks))
+
 (defn from-dataset
   "Returns a lazy sequence of maps from a dataset ds."
   [ds]
@@ -19,12 +27,12 @@
   [ks coll]
   (md/dataset
      ks
-   (m/matrix
-    (into [] (map
-              (comp
-               #(into[] (vals %))
-               #(select-keys % ks))
-              coll)))))
+     (->> coll
+          (map #(select-keys % ks))
+          (map #(select-vals % ks))
+          (into [])
+          m/matrix
+          )))
 
 (defn select
   "Returns the dataset ds only containing columns specified in cols, 
@@ -43,16 +51,18 @@
   (->> ds
        from-dataset
        (clojure.core/filter pred)
-       (to-dataset (md/column-names ds))))
+       (to-dataset (column-names ds))))
 
 (defn order
   "Returns the dataset ds sorted in ascending order on the columns
-   specified in cols."
-  [cols ds]
+   specified in cols. If :rev keyword (false by default) is set to true
+   then the sort order is reversed."
+  [cols ds & {:keys [rev] :or {rev false}}]
   (->> ds
        from-dataset
        (sort-by (apply juxt (flatten [cols])))
-       (to-dataset (md/column-names ds))))
+       ((if rev reverse identity))
+       (to-dataset (column-names ds))))
 
 (defn aggregate
   "Returns dataset ds grouped by cols (list/vector), by
@@ -118,3 +128,23 @@
                    (fn[y z] (update y z (constantly (f (get g z))))) m d))))
              (to-dataset (concat xcols d))
              )))
+
+(defn add-column
+  "Adds column vector v with name n to dataset ds."
+  [n v ds]
+  (md/add-column ds n v))
+
+
+(defn rapply
+  "For each row, applies the function f. A vector is passed to f,
+   and a scalar return is expected."
+  [cols f ds]
+  (->> (select (flatten [cols]) ds)
+       (mapv #(f (vec %)))))
+
+(defn capply
+  "For each column, applies the function f. A vector is passed to f,
+   and a scalar return is expected."
+  [cols f ds]
+  (->> (select (flatten [cols]) ds)
+       (mapv #(f (vec %)))))
