@@ -13,6 +13,8 @@ datasets in Clojure. Library includes the following functions:
 * join (inner and left join datasets on arbitrary criteria)
 * aggregate (group by aggregates)
 * cross-tab (pivot-tables)
+* order-columns (column ordering)
+* capply, rapply (column and row apply)
 * to-dataset (list of maps to dataset)
 * from-dataset (dataset to list of maps).
 
