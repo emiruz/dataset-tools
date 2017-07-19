@@ -7,11 +7,6 @@
             [clojure.set :as cset]
             [clojure.core.reducers :as red]))
 
-(defn remove-column
-  "Removes the columns cols from the dataset ds."
-  [cols ds]
-  (select (column-names ds :except cols) ds))
-
 (defn column-names
   "Returns the column names of the dataset ds. If except is specified
    it will not include columns listed therein."
@@ -174,3 +169,8 @@
                   (select-vals m (s (keys m)))
                   (flatten [suffix]))]
     (select c ds)))
+
+(defn remove-column
+  "Removes the columns cols from the dataset ds."
+  [cols ds]
+  (select (column-names ds :except cols) ds))
