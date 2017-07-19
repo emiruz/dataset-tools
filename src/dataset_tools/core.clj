@@ -7,10 +7,21 @@
             [clojure.set :as cset]
             [clojure.core.reducers :as red]))
 
+(defn remove-column
+  "Removes the columns cols from the dataset ds."
+  [cols ds]
+  (select (column-names ds :except cols) ds))
+
 (defn column-names
-  "Returns the column names of the dataset ds."
-  [ds]
-  (md/column-names ds))
+  "Returns the column names of the dataset ds. If except is specified
+   it will not include columns listed therein."
+  [ds & {:keys[except] :or {except nil}}]
+  (if (nil? except)
+    (md/column-names ds)
+    (let [o (md/column-names ds)
+          os (into #{} o)
+          e (into #{} (flatten [except]))]
+      (into [] (cset/difference os (cset/intersection os e))))))
 
 (defn select-vals
   "Select the values from the map m in the order specified in ks."
