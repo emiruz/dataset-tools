@@ -180,7 +180,7 @@
 (defn reduce-dimensions
   "Removes some of the columns specified in cols from the dataset ds
    such that the fraction thres of variance is retainted. thres should
-   be between 0 and 1."
+   be between 0 and 1, the cols specified should only be numeric."
   [thres cols ds]
   (let [capply (fn [f m](mapv #(f (m/get-column m %))
                               (range 0 (m/column-count m))))
