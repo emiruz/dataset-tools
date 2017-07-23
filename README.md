@@ -17,6 +17,9 @@ datasets in Clojure. Library includes the following functions:
 * capply, rapply (column and row apply)
 * to-dataset (list of maps to dataset)
 * from-dataset (dataset to list of maps).
+* from-csv (dataset from csv file)
+* reduce-dimensions (dimension reduction of a dataset).
+* various aux. functions.
 
 Please report issues and contribute if you can.
 
