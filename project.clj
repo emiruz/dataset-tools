@@ -1,4 +1,4 @@
-(defproject dataset-tools "0.1.6"
+(defproject dataset-tools "0.1.7"
   :description "Easy to use library for working with core.matrix datasets in Clojure."
   :url "https://github.com/emiruz/dataset-tools"
   :license {:name "Eclipse Public License"
