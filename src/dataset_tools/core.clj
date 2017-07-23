@@ -5,7 +5,9 @@
             [clojure.core.matrix.dataset :as md]
             [clojure.core.matrix :as m]
             [clojure.set :as cset]
-            [clojure.core.reducers :as red]))
+            [clojure.data.csv :as csv]
+            [clojure.java.io :as io]
+            [clatrix.core :as cla]))
 
 (defn column-names
   "Returns the column names of the dataset ds. If except is specified
@@ -174,3 +176,44 @@
   "Removes the columns cols from the dataset ds."
   [cols ds]
   (select (column-names ds :except cols) ds))
+
+(defn reduce-dimensions
+  "Removes some of the columns specified in cols from the dataset ds
+   such that the fraction thres of variance is retainted. thres should
+   be between 0 and 1."
+  [thres cols ds]
+  (let [capply (fn [f m](mapv #(f (m/get-column m %))
+                              (range 0 (m/column-count m))))
+        diff (fn[v l](filter (fn[x] (nil? (some #(= x %) l))) v))
+        ds0 (select cols ds)
+        m (cla/svd (cla/matrix (m/matrix ds0)))
+        l (m/matrix (:left m))
+        r (m/transpose (m/matrix (:right m)))
+        s (m/matrix (:values m))
+        sum (reduce + s)
+        ind (distinct (conj (keep-indexed #(if (<= %2 thres) %1)
+                          (map #(/ % sum) (reductions + s))) 0))        
+        est (m/mmul (m/select l :all ind)
+                    (m/diagonal-matrix (take (count ind) s))
+                    (m/select r ind :all))
+        lsq (capply (comp (partial reduce +) (partial map #(* % %)))
+                    (m/add ds0 (m/scale est -1)))
+        lsum (reduce + lsq)
+        lcum (next (reduce #(conj %1 [(+ (->> %1 last first) (first %2)) (peek %2)]) [[0 0]]
+                           (sort-by first (keep-indexed (fn[x y][(/ y lsum) x]) lsq))))
+        lind (distinct (conj (filter #(if (<= (first %) thres) true) lcum) (first lcum)))
+        lmap (into [] (map peek lind))
+        colm (into {} (keep-indexed (fn[x y][x y]) (column-names ds)))]
+    (select (concat (diff (vals colm) cols) (map #(get colm %) lmap)) ds)))
+
+(defn from-csv
+  "Create a new dataset from a proper csv file f. sep and quo are optional
+   keys and are expected to be characters indicating the separator and
+   quoting character respectively."
+  [f & {:keys [sep quo] :or {sep \, quo \"}}]
+  (with-open [r (io/reader f)]
+    (let [rr (fn[](csv/read-csv r :separator sep :quote quo))
+          h (first (rr))
+          v (fn[x](try (Double/parseDouble (str x)) (catch Exception e (str x))))]
+      (to-dataset h (map (comp (partial zipmap h) (partial map v)) (rr))))))
+

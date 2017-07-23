@@ -13,6 +13,10 @@
    {:a 41 :e 99 :x "A"}
    {:a 13 :e 999 :x "X"}])
 
+(def test-num (d/to-dataset [:a :b :c] [{:a 2 :b 1 :c 41.3 }
+                                        {:a 141 :b 1 :c 3.1 }
+                                        {:a 99 :b 1 :c 11.8 }]))
+
 (deftest to-and-from-dataset-test
   (testing
       "To/from dataset tests"
@@ -70,3 +74,7 @@
                (= '({:c "X", :d "A", :r1 1, :r2 1}
                     {:c "Y", :d "A", :r1 41, :r2 41}
                     {:c "X", :d "B", :r1 12, :r2 12})))))))
+
+;;(deftest reduce-dimensions-test
+;;  (testing "Reduce dimemnsion on iris data test"
+;;    (is (->> (d/from-csv "iris.csv")
