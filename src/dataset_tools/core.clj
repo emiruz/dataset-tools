@@ -204,7 +204,7 @@
         lind (distinct (conj (filter #(if (<= (first %) thres) true) lcum) (first lcum)))
         lmap (into [] (map peek lind))
         colm (into {} (keep-indexed (fn[x y][x y]) (column-names ds)))]
-    (select (concat (diff (vals colm) cols) (map #(get colm %) lmap)) ds)))
+    (select (concat (diff (vals colm) cols) (map #(get colm %) lmap)) ds0)))
 
 (defn from-csv
   "Create a new dataset from a proper csv file f. sep and quo are optional
