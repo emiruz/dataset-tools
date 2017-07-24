@@ -4,21 +4,17 @@
   (:require [clojure.string :as str]
             [clojure.core.matrix.dataset :as md]
             [clojure.core.matrix :as m]
-            [clojure.set :as cset]
             [clojure.data.csv :as csv]
             [clojure.java.io :as io]
             [clatrix.core :as cla]))
+
+(defn- diff [v l] (filter (fn[x] (nil? (some #(= x %) l))) v))
 
 (defn column-names
   "Returns the column names of the dataset ds. If except is specified
    it will not include columns listed therein."
   [ds & {:keys[except] :or {except nil}}]
-  (if (nil? except)
-    (md/column-names ds)
-    (let [o (md/column-names ds)
-          os (into #{} o)
-          e (into #{} (flatten [except]))]
-      (into [] (cset/difference os (cset/intersection os e))))))
+  (diff (md/column-names ds) except))
 
 (defn select-vals
   "Select the values from the map m in the order specified in ks."
@@ -105,10 +101,7 @@
         xcols (md/column-names dsx)
         ycols (md/column-names dsy)
         ucols (distinct (concat xcols ycols))
-        dcols (cset/difference (into #{} ycols)
-                               (cset/intersection
-                                (into #{} xcols)
-                                (into #{} ycols)))]
+        dcols (diff ycols xcols)]
     (->> dsx
          from-dataset
          (map (fn[x]
@@ -142,7 +135,6 @@
   "Adds column vector v with name n to dataset ds."
   [n v ds]
   (md/add-column ds n v))
-
 
 (defn rapply
   "For each row, applies the function f. A vector is passed to f,
@@ -184,7 +176,6 @@
   [thres cols ds]
   (let [capply (fn [f m](mapv #(f (m/get-column m %))
                               (range 0 (m/column-count m))))
-        diff (fn[v l](filter (fn[x] (nil? (some #(= x %) l))) v))
         ds0 (select cols ds)
         m (cla/svd (cla/matrix (m/matrix ds0)))
         l (m/matrix (:left m))
