@@ -14,7 +14,7 @@
   "Returns the column names of the dataset ds. If except is specified
    it will not include columns listed therein."
   [ds & {:keys[except] :or {except []}}]
-  (diff (md/column-names ds) (flatten [except])))
+  (into [] (diff (md/column-names ds) (flatten [except]))))
 
 (defn select-vals
   "Select the values from the map m in the order specified in ks."
