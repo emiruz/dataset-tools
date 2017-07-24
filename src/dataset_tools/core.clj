@@ -157,12 +157,23 @@
    of the dataset respectively. The function f should expect a column
    vector and return a scalar. If rev is specified the order is reversed."
   [cols f ds & {:keys [rev prefix suffix] :or {rev false prefix [] suffix []}}]
-  (let [m (zipmap (capply cols f ds) cols)
-        s (comp (if rev reverse identity) sort)
-        c (concat (flatten [prefix])
-                  (select-vals m (s (keys m)))
-                  (flatten [suffix]))]
-    (select c ds)))
+  (let [i (partition 2 (interleave (capply cols f ds) cols))
+        so (comp (if rev reverse identity) (partial sort-by first))]
+    (select (concat (flatten [prefix])
+                    (map last (so i))
+                    (flatten [suffix])) ds)))
+
+(defn filter-columns
+  "Filters the dataset ds columns cols according to function f.
+   The columns in prefix and suffix are added to the beginning and end
+   of the dataset respectively. The function f should expect a column
+   vector and return a boolean."
+  [cols f ds & {:keys [prefix suffix] :or {prefix [] suffix []}}]
+  (select
+   (concat
+    (flatten [prefix])
+    (map last (filter first (partition 2 (interleave (capply cols f ds) cols))))
+    (flatten [suffix])) ds))
 
 (defn remove-column
   "Removes the columns cols from the dataset ds."
