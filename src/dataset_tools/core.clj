@@ -63,9 +63,21 @@
    specified in cols. If :rev keyword (false by default) is set to true
    then the sort order is reversed."
   [cols ds & {:keys [rev] :or {rev false}}]
+  (let [c (flatten [cols])]
+        (->> ds
+             from-dataset
+             (sort-by (apply juxt c))
+             ((if rev reverse identity))
+             (to-dataset (column-names ds)))))
+
+(defn order-by
+  "Returns the dataset ds sorted in ascending order by scalar values returned
+   by the function f. If :rev keyword (false by default) is set to true
+   then the sort order is reversed."
+  [f ds & {:keys [rev] :or {rev false}}]
   (->> ds
        from-dataset
-       (sort-by (apply juxt (flatten [cols])))
+       (sort-by f)
        ((if rev reverse identity))
        (to-dataset (column-names ds))))
 
