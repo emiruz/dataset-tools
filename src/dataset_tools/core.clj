@@ -106,7 +106,7 @@
   "Join two datasets (dsx, dsy) using the key functions fx and fy.
    If :left is set to true then the join will be a left join, otherwise
    the join will be an inner join."
-  [fx fy dsx dsy & {:keys [left] :or {:left false}}]
+  [fx fy dsx dsy & {:keys [left] :or {left false}}]
   (let [m (->> dsy
                from-dataset
                (group-by fy))
